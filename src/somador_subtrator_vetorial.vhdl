@@ -1,34 +1,39 @@
+-- =============================================================================
+-- Arquivo: somador_subtrator_vetorial.vhdl
+-- Descrição: Somador/Subtrator vetorial de 4 elementos de 8 bits
+-- Autor: Equipe Processador Vetorial
+-- Data: 26/11/2025
+-- =============================================================================
+
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 entity SomadorSubtratorVetorial is
     port (
-        a, b: in std_logic_vector(31 downto 0);
-        is_sub: in std_logic;
-
-        r: out std_logic_vector(31 downto 0)
+        A      : in  std_logic_vector(31 downto 0);
+        B      : in  std_logic_vector(31 downto 0);
+        is_sub : in  std_logic;
+        result : out std_logic_vector(31 downto 0)
     );
-end entity;
+end entity SomadorSubtratorVetorial;
 
-architecture SomadorSubtratorVetorialArc of SomadorSubtratorVetorial is
-    signal res: std_logic_vector(8 downto 0);
+architecture Structural of SomadorSubtratorVetorial is
+    component AddSubClip8Bit is
+        port (
+            a       : in  std_logic_vector(7 downto 0);
+            b       : in  std_logic_vector(7 downto 0);
+            is_sub  : in  std_logic;
+            result  : out std_logic_vector(7 downto 0)
+        );
+    end component;
 begin
-
-    S0: entity work.AddSubClip8Bit port map (
-        a => a(7 downto 0), b => b(7 downto 0), is_sub => is_sub, r => r(7 downto 0)
-    );
-
-    S1: entity work.AddSubClip8Bit port map (
-        a => a(15 downto 8), b => b(15 downto 8), is_sub => is_sub, r => r(15 downto 8)
-    );
-
-    S2: entity work.AddSubClip8Bit port map (
-        a => a(23 downto 16), b => b(23 downto 16), is_sub => is_sub, r => r(23 downto 16)
-    );
-
-    S3: entity work.AddSubClip8Bit port map (
-        a => a(31 downto 24), b => b(31 downto 24), is_sub => is_sub, r => r(31 downto 24)
-    );
-
-end SomadorSubtratorVetorialArc;
+    gen_add_sub: for i in 0 to 3 generate
+        add_sub_inst: AddSubClip8Bit
+            port map (
+                a       => A(8*i+7 downto 8*i),
+                b       => B(8*i+7 downto 8*i),
+                is_sub  => is_sub,
+                result  => result(8*i+7 downto 8*i)
+            );
+    end generate;
+end architecture Structural;

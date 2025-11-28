@@ -1,1 +1,67 @@
+# Quartus II generated files
+*.rpt
+*.summary
+*.smsg
+*.done
+*.pin
+*.sof
+*.pof
+*.qws
+*.bak
+*.qar
+db/
+incremental_db/
+output_files/
+simulation/
+*.qpf.bak
+*.qsf.bak
+
+# GHDL generated files
+*.o
+*.cf
+work-obj93.cf
+*.ghw
+*.vcd
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# LaTeX generated files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.pdf
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

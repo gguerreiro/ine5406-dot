@@ -1,0 +1,190 @@
+\documentclass[11pt, a4paper]{article}
+
+% ===== PACOTES ESSENCIAIS =====
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs} % Para tabelas profissionais (\toprule, \midrule, \bottomrule)
+\usepackage{siunitx}  % Para alinhar números em tabelas e unidades (\SI)
+\usepackage{float}    % Para controle de posicionamento de figuras [H]
+
+% ===== CONFIGURAÇÕES DE PÁGINA E HIPERLINKS =====
+\geometry{a4paper, top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Análise Comparativa HW vs SW},
+    pdfpagemode=FullScreen,
+}
+
+% ===== INFORMAÇÕES DO DOCUMENTO =====
+\title{
+    \textbf{Análise Comparativa de Desempenho: Hardware vs. Software}
+    \vspace{0.5cm}
+    \large{Projeto: Processador Vetorial de 4 Elementos (INE5406)}
+}
+\author{Equipe Processador Vetorial}
+\date{\today}
+
+% ===== INÍCIO DO DOCUMENTO =====
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+% --- SEÇÃO 1: INTRODUÇÃO ---
+\section{Introdução}
+
+Este documento apresenta uma análise comparativa de desempenho entre duas implementações do Processador Vetorial de 4 Elementos:
+
+\begin{enumerate}
+    \item \textbf{Hardware (FPGA):} Uma arquitetura de hardware customizada, descrita em VHDL e sintetizada para um FPGA Intel Cyclone IV E (EP4CE6E22C8).
+    \item \textbf{Software (Python):} Um modelo de referência algorítmico executado em um processador de propósito geral (CPU), utilizando Python 3.11 e a biblioteca NumPy.
+\end{enumerate}
+
+A análise foca em quatro métricas principais: \textbf{latência}, \textbf{throughput (vazão)}, \textbf{speedup (aceleração)} e \textbf{eficiência energética}. O objetivo é quantificar os benefícios da aceleração por hardware em tarefas de computação vetorial, demonstrando as vantagens de uma solução dedicada em comparação com uma abordagem de software genérica.
+
+% --- SEÇÃO 2: ESPECIFICAÇÕES ---
+\section{Especificações das Plataformas}
+
+As características de cada plataforma são fundamentais para entender os resultados de desempenho. A Tabela \ref{tab:specs} resume as principais especificações.
+
+\begin{table}[H]
+    \centering
+    \caption{Especificações das plataformas de Hardware e Software.}
+    \label{tab:specs}
+    \begin{tabular}{l l l}
+        \toprule
+        \textbf{Característica} & \textbf{Hardware (FPGA)} & \textbf{Software (CPU)} \\
+        \midrule
+        Dispositivo & Intel Cyclone IV E & CPU x86-64 Genérico \\
+        Frequência Operacional & \SI{250.0}{\mega\hertz} (Restringida por I/O) & \textasciitilde\SIrange{2.5}{4.5}{\giga\hertz} \\
+        Consumo de Potência & \textasciitilde\SI{50}{\milli\watt} (Estimado) & \textasciitilde\SI{15}{\watt} (Típico) \\
+        Paralelismo & Nativo, espacial (4 elementos) & Temporal, via laços (\texttt{for}) \\
+        Utilização de Recursos & 10 Elementos Lógicos (< 1\%) & N/A \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% --- SEÇÃO 3: ANÁLISE DE DESEMPENHO ---
+\section{Análise de Desempenho}
+
+A seguir, são apresentados os resultados quantitativos da comparação de desempenho.
+
+\subsection{Latência por Operação}
+
+A latência mede o tempo total para completar uma única operação. No hardware, este valor é determinístico e depende do número de ciclos de clock da FSM. No software, é medido empiricamente. Os resultados estão na Tabela \ref{tab:latencia}.
+
+\begin{table}[H]
+    \centering
+    \caption{Latência por operação.}
+    \label{tab:latencia}
+    \begin{tabular}{l c S[table-format=1.3] S[table-format=2.3] c}
+        \toprule
+        \textbf{Operação} & \textbf{HW (Ciclos)} & {\textbf{HW (µs)}} & {\textbf{SW (µs)}} & \textbf{Vantagem HW} \\
+        \midrule
+        SOMA VETORIAL & 6 & 0.024 & 2.365 & 98.5x mais rápido \\
+        SUBTRAÇÃO VETORIAL & 6 & 0.024 & 2.268 & 94.5x mais rápido \\
+        PRODUTO ESCALAR & 9 & 0.036 & 1.469 & 40.8x mais rápido \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Throughput (Vazão)}
+
+O throughput representa o número de operações que podem ser executadas por segundo. A Tabela \ref{tab:throughput} detalha a comparação.
+
+\begin{table}[H]
+    \centering
+    \caption{Throughput (operações por segundo).}
+    \label{tab:throughput}
+    \begin{tabular}{l S[table-format=2.2] S[table-format=1.2] c}
+        \toprule
+        \textbf{Operação} & {\textbf{HW (Mops/s)}} & {\textbf{SW (Mops/s)}} & \textbf{Ganho de Vazão} \\
+        \midrule
+        SOMA VETORIAL & 41.67 & 0.42 & 98.5x \\
+        SUBTRAÇÃO VETORIAL & 41.67 & 0.44 & 94.5x \\
+        PRODUTO ESCALAR & 27.78 & 0.68 & 40.8x \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Speedup (Aceleração)}
+
+O speedup é a razão direta entre o tempo de execução do software e o do hardware. Ele quantifica o ganho de velocidade. O \textbf{speedup médio} obtido foi de \textbf{77.9x}, indicando que a implementação em hardware é, em média, quase 80 vezes mais rápida.
+
+% --- SEÇÃO 4: GRÁFICOS ---
+\section{Gráficos Comparativos}
+
+A Figura \ref{fig:graficos} resume visualmente as principais diferenças de desempenho entre as duas plataformas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{comparativo_hw_sw_graficos.png}
+    \caption{Comparação de Latência, Speedup, Throughput e Eficiência Energética.}
+    \label{fig:graficos}
+\end{figure}
+
+% --- SEÇÃO 5: EFICIÊNCIA ENERGÉTICA ---
+\section{Análise de Eficiência Energética}
+
+A eficiência energética, medida em operações por Joule, é uma métrica crítica para sistemas embarcados. A Tabela \ref{tab:eficiencia} demonstra a superioridade do hardware.
+
+\begin{table}[H]
+    \centering
+    \caption{Eficiência energética (operações por Joule).}
+    \label{tab:eficiencia}
+    \begin{tabular}{l S[table-format=1.2] S[table-format=2.2] c}
+        \toprule
+        \textbf{Operação} & {\textbf{HW (Gops/J)}} & {\textbf{SW (Kops/J)}} & \textbf{Ganho} \\
+        \midrule
+        SOMA VETORIAL & 0.83 & 28.19 & 29,562x \\
+        SUBTRAÇÃO VETORIAL & 0.83 & 29.39 & 28,350x \\
+        PRODUTO ESCALAR & 0.56 & 45.38 & 12,242x \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Os resultados mostram uma vantagem extraordinária da implementação em hardware, que chega a ser mais de \textbf{29.000 vezes mais eficiente energeticamente}.
+
+% --- SEÇÃO 6: CONCLUSÕES ---
+\section{Conclusões}
+
+A implementação do Processador Vetorial em hardware (FPGA) demonstrou uma superioridade massiva em todas as métricas de desempenho quando comparada à implementação em software (Python).
+
+\begin{itemize}
+    \item \textbf{Desempenho:} Com um speedup médio de \textbf{77.9x}, o hardware oferece uma aceleração significativa, crucial para aplicações que exigem baixa latência e alta vazão.
+    \item \textbf{Eficiência:} A arquitetura de hardware customizada consome uma fração da energia de um CPU, resultando em uma eficiência energética milhares de vezes superior. Isso torna a solução ideal para sistemas embarcados e aplicações onde o consumo de energia é um fator crítico.
+    \item \textbf{Utilização de Recursos:} O design é extremamente leve, utilizando menos de 1\% dos recursos lógicos do FPGA alvo. Isso comprova a viabilidade de integrar este processador como um coprocessador em um System-on-a-Chip (SoC) mais complexo.
+\end{itemize}
+
+Em suma, a aceleração por hardware se prova uma abordagem indispensável para tarefas de computação vetorial, validando o propósito e o sucesso deste projeto.
+
+% --- SEÇÃO 7: REFERÊNCIAS ---
+\section{Referências}
+
+\begin{thebibliography}{9}
+    \bibitem{intel_cyclone4}
+    Intel Corporation. (2017). \textit{Cyclone IV Device Handbook, Volume 1}.
+    \href{https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/cyclone-iv/cyiv-cyiv51001.pdf}{[Online].}
+
+    \bibitem{python_docs}
+    Python Software Foundation. (2025). \textit{Python 3.11 Documentation}.
+    \href{https://docs.python.org/3.11/}{[Online].}
+
+    \bibitem{numpy_paper}
+    Harris, C.R., Millman, K.J., van der Walt, S.J. et al. (2020). \textit{Array programming with NumPy}. Nature 585, 357–362.
+    \href{https://doi.org/10.1038/s41586-020-2649-2}{[Online].}
+
+\end{thebibliography}
+
+\end{document}
