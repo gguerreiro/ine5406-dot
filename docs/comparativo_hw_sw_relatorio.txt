@@ -1,0 +1,77 @@
+================================================================================
+ANÁLISE COMPARATIVA: HARDWARE vs SOFTWARE
+Processador Vetorial de 4 Elementos
+================================================================================
+
+1. ESPECIFICAÇÕES
+--------------------------------------------------------------------------------
+
+HARDWARE (FPGA Cyclone IV E - EP4CE6E22C8):
+  • Frequência máxima: 964.32 MHz
+  • Frequência operacional: 250.00 MHz
+  • Período de clock: 4.00 ns
+  • Logic Elements: 10 / 6,272 (< 1%)
+  • Registers: 10 / 6,684 (< 1%)
+  • Potência estimada: 50 mW
+
+SOFTWARE (Python 3.11 + NumPy):
+  • Processador: CPU x86_64 genérico
+  • Potência típica: 15 W
+
+2. LATÊNCIA POR OPERAÇÃO
+--------------------------------------------------------------------------------
+
+Operação             HW (ciclos)     HW (ns)         HW (µs)         SW (µs)        
+--------------------------------------------------------------------------------
+SOMA                 6               24.00           0.024           2.365          
+SUBTRACAO            6               24.00           0.024           2.268          
+PRODUTO_ESCALAR      9               36.00           0.036           1.469          
+
+3. SPEEDUP (ACELERAÇÃO)
+--------------------------------------------------------------------------------
+
+Operação             Speedup         Interpretação                           
+--------------------------------------------------------------------------------
+SOMA                 98.54           HW é 98.5x mais rápido que SW           
+SUBTRACAO            94.50           HW é 94.5x mais rápido que SW           
+PRODUTO_ESCALAR      40.81           HW é 40.8x mais rápido que SW           
+
+Speedup médio: 77.95x
+
+4. THROUGHPUT (OPERAÇÕES POR SEGUNDO)
+--------------------------------------------------------------------------------
+
+Operação             HW (Mops/s)          SW (Mops/s)          Ganho          
+--------------------------------------------------------------------------------
+SOMA                 41.67                0.42                 98.54          x
+SUBTRACAO            41.67                0.44                 94.50          x
+PRODUTO_ESCALAR      27.78                0.68                 40.81          x
+
+5. EFICIÊNCIA ENERGÉTICA
+--------------------------------------------------------------------------------
+
+Operação             HW (Gops/J)          SW (Kops/J)          Ganho          
+--------------------------------------------------------------------------------
+SOMA                 0.83                 28.19                29562          x
+SUBTRACAO            0.83                 29.39                28350          x
+PRODUTO_ESCALAR      0.56                 45.38                12242          x
+
+6. CONCLUSÕES
+--------------------------------------------------------------------------------
+
+A implementação em hardware (FPGA) apresenta vantagens significativas:
+
+✓ Speedup médio de 77.9x em relação ao software
+✓ Throughput até 98.5x superior
+✓ Eficiência energética até 29562x melhor
+✓ Utilização mínima de recursos (< 1% do FPGA)
+✓ Latência determinística e previsível
+✓ Paralelismo nativo ao nível de hardware
+
+Aplicações ideais para a implementação em hardware:
+• Processamento de sinais em tempo real
+• Sistemas embarcados com restrições de energia
+• Aceleradores para operações vetoriais intensivas
+• Pipelines de processamento de dados de alta vazão
+
+================================================================================

@@ -1,30 +1,37 @@
+-- =============================================================================
+-- Arquivo: acumulador_24bit.vhdl
+-- Descrição: Acumulador de 24 bits com sinal (signed)
+-- Autor: Equipe Processador Vetorial
+-- Data: 26/11/2025
+-- =============================================================================
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity Acumulador24Bit is
     port (
-        rst: in std_logic;
-        clk: in std_logic;
-        en: in std_logic;
-        a: in std_logic_vector(23 downto 0);
-        
-        v: out std_logic_vector(23 downto 0)
+        clk    : in  std_logic;                      -- Clock
+        rst    : in  std_logic;                      -- Reset síncrono (ativo alto)
+        enable : in  std_logic;                      -- Enable (acumula o dado)
+        d      : in  std_logic_vector(15 downto 0);  -- Dado de entrada (signed 16 bits)
+        q      : out std_logic_vector(23 downto 0)   -- Saída acumulada (signed 24 bits)
     );
-end entity;
+end entity Acumulador24Bit;
 
-architecture Acumulador24BitArc of Acumulador24Bit is
-    signal acc: std_logic_vector(23 downto 0);
+architecture Behavioral of Acumulador24Bit is
+    signal q_reg : signed(23 downto 0) := (others => '0');
 begin
-
-    process (rst, clk) begin
-        if rst = '1' then
-            acc <= "000000000000000000000000";
-        elsif rising_edge(clk) and en = '1' then
-            acc <= std_logic_vector(unsigned(acc) + unsigned(a));
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                q_reg <= (others => '0');
+            elsif enable = '1' then
+                q_reg <= q_reg + resize(signed(d), 24);
+            end if;
         end if;
     end process;
-
-    v <= acc;
-
-end Acumulador24BitArc;
+    
+    q <= std_logic_vector(q_reg);
+end architecture Behavioral;

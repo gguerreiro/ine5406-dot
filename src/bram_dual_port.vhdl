@@ -1,29 +1,42 @@
+-- =============================================================================
+-- Arquivo: bram_dual_port.vhdl
+-- Descrição: Memória BRAM dual-port
+-- Autor: Equipe Processador Vetorial
+-- Data: 26/11/2025
+-- =============================================================================
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity BRAM is
-    port (
-        addr_a, addr_b, addr_w: in std_logic_vector(7 downto 0);
-        clk, we: in std_logic;
-        wd: in std_logic_vector(31 downto 0);
-
-        val_a, val_b: out std_logic_vector(31 downto 0)
+entity BRAMDualPort is
+    generic (
+        DATA_WIDTH : integer := 32;
+        ADDR_WIDTH : integer := 5
     );
-end entity;
+    port (
+        clk    : in  std_logic;
+        we     : in  std_logic;
+        addr_a : in  std_logic_vector(ADDR_WIDTH-1 downto 0);
+        addr_b : in  std_logic_vector(ADDR_WIDTH-1 downto 0);
+        di     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+        val_a  : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        val_b  : out std_logic_vector(DATA_WIDTH-1 downto 0)
+    );
+end entity BRAMDualPort;
 
-architecture BRAMArc of BRAM is
-    type memory is array (0 to 255) of std_logic_vector(31 downto 0);
-    signal data: memory;
+architecture Behavioral of BRAMDualPort is
+    type ram_type is array (0 to 2**ADDR_WIDTH - 1) of std_logic_vector(DATA_WIDTH-1 downto 0);
+    shared variable ram : ram_type := (others => (others => '0'));
 begin
-
-    process (clk) begin
-        if rising_edge(clk) and we = '1' then
-            data(to_integer(unsigned(addr_w))) <= wd;
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if we = '1' then
+                ram(to_integer(unsigned(addr_a))) := di;
+            end if;
+            val_a <= ram(to_integer(unsigned(addr_a)));
+            val_b <= ram(to_integer(unsigned(addr_b)));
         end if;
     end process;
-
-    val_a <= data(to_integer(unsigned(addr_a)));
-    val_b <= data(to_integer(unsigned(addr_b)));
-
-end BRAMArc;
+end architecture Behavioral;
